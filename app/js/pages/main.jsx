@@ -64,27 +64,6 @@ export default class Main extends React.Component {
         .catch((error) => {
             console.log(error);
         });
-
-        // axios({
-        //   method: 'post',
-        //   url: 'http://localhost:3000/collect_data',
-        //   contentType: 'application/json',
-        //   headers: { 
-        //     'Access-Control-Allow-Origin': '*',
-        //     'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept'
-        //   },
-        //   data: JSON.stringify({
-        //     'uuid': uuid,
-        //     'timeStamp': currentDate,
-        //     'temp': temp,
-        //   })
-        // })
-        // .then((response) => {
-        //     console.log('res', response);
-        // })
-        // .catch((error) => {
-        //     console.log('ERROR:', error);
-        // });
     }
 
     render() {

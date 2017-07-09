@@ -35,6 +35,6 @@ app.get('/', function (req, res) {
 });
 
 // Start Server
-app.listen(4205, function() {
+app.listen(process.env.PORT || 4205, function() {
 	console.log('Server: Running on port: 4205');
 });

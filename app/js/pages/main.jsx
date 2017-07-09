@@ -42,26 +42,47 @@ export default class Main extends React.Component {
     }
 
     sendTemp(uuid, currentDate, temp) {
-        console.log('sending temp');
+        console.log('sending post request');
         let config = {
-            headers: {
-                'Content-Type': 'application/json', 
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept'
-              }
+          headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept'
+          }
         }
-
-        axios.post('https://oddworld.herokuapp.com/collect_data', {
+        //https://oddworld.herokuapp.com/collect_data
+        axios.post('http://localhost:3000/collect_data', {
             'uuid': uuid,
             'timeStamp': currentDate,
             'temp': temp,
-        }, config)
+        }, 'contentType': 'application/json', config)
         .then((response) => {
             console.log(response);
         })
         .catch((error) => {
             console.log(error);
         });
+
+        // axios({
+        //   method: 'post',
+        //   url: 'http://localhost:3000/collect_data',
+        //   contentType: 'application/json',
+        //   headers: { 
+        //     'Access-Control-Allow-Origin': '*',
+        //     'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept'
+        //   },
+        //   data: JSON.stringify({
+        //     'uuid': uuid,
+        //     'timeStamp': currentDate,
+        //     'temp': temp,
+        //   })
+        // })
+        // .then((response) => {
+        //     console.log('res', response);
+        // })
+        // .catch((error) => {
+        //     console.log('ERROR:', error);
+        // });
     }
 
     render() {

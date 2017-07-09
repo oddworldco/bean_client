@@ -18,12 +18,12 @@ Bean.discover((bean) => {
 
   // Start Bean streaming
   // NOTE: The Readable stream will call bean.connectAndSetup()
-  let beanReadable = beanStream.createReadStream(bean, {
-    poll: 5000, // Interval in millis
-    pollTemp: true
-  });
+  // let beanReadable = beanStream.createReadStream(bean, {
+  //   poll: 10000, // Interval in millis
+  //   pollTemp: true
+  // });
 
-  beanReadable.pipe(json).pipe(process.stdout);
+  // beanReadable.pipe(json).pipe(process.stdout);
 
 });
 

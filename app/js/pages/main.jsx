@@ -25,8 +25,7 @@ export default class Main extends React.Component {
 
                 if (valid) {
                     console.log('send temp prep');
-                    console.log(bean)
-                    // this.sendTemp(uuid, currentDate, temp);
+                    this.sendTemp(uuid, currentDate, temp);
                 }
             });
 
@@ -39,7 +38,7 @@ export default class Main extends React.Component {
                     });
                 }
 
-                intervalId = setInterval(readData, 10000);
+                intervalId = setInterval(readData, 30000);
             });
         });
     }

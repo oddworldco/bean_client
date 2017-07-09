@@ -54,7 +54,7 @@ export default class Main extends React.Component {
           }
         }
         //https://oddworld.herokuapp.com/collect_data
-        axios.post('http://localhost:3000/collect_data', {
+        axios.post('https://oddworld.herokuapp.com/collect_data', {
             'uuid': uuid,
             'timeStamp': currentDate,
             'temp': temp,

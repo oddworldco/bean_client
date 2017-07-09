@@ -13,8 +13,6 @@ export default class Main extends React.Component {
     }
 
     onclick_dicoverBean() {
-        onclick_testServer();
-
         let intervalId;
 
         Bean.discover((bean) => {
@@ -25,6 +23,7 @@ export default class Main extends React.Component {
                     uuid = bean.uuid;
 
                 if (valid) {
+                    console.log('send temp prep');
                     this.sendTemp(uuid, currentDate, temp);
                 }
             });
@@ -37,17 +36,24 @@ export default class Main extends React.Component {
                     });
                 }
 
-                intervalId = setInterval(readData, 1800000);
+                intervalId = setInterval(readData, 10000);
             });
         });
     }
 
     sendTemp(uuid, currentDate, temp) {
+        console.log('sending temp');
         let config = {
-            headers: {'Content-Type': 'application/json'}
+            headers: {
+                'Content-Type': 'application/json', 
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept',
+                'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS',
+                'Access-Control-Allow-Credentials': 'true'
+            }
         }
 
-        axios.post('http://localhost:3000/collect_data', {
+        axios.post('https://oddworld.herokuapp.com/collect_data', {
             'uuid': uuid,
             'timeStamp': currentDate,
             'temp': temp,

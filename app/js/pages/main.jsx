@@ -25,7 +25,8 @@ export default class Main extends React.Component {
 
                 if (valid) {
                     console.log('send temp prep');
-                    this.sendTemp(uuid, currentDate, temp);
+                    console.log(bean)
+                    // this.sendTemp(uuid, currentDate, temp);
                 }
             });
 

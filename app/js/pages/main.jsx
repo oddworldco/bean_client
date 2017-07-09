@@ -47,10 +47,8 @@ export default class Main extends React.Component {
             headers: {
                 'Content-Type': 'application/json', 
                 'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept',
-                'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS',
-                'Access-Control-Allow-Credentials': 'true'
-            }
+                'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept'
+              }
         }
 
         axios.post('https://oddworld.herokuapp.com/collect_data', {

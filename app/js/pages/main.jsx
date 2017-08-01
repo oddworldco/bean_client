@@ -1,9 +1,11 @@
 import React from 'react';
 import Bean from 'ble-bean';
+import beanStream from 'ble-bean-stream';
 import axios from 'axios';
+import stream from 'stream';
+
 
 //Components
-
 export default class Main extends React.Component {
     constructor() {
         super();
@@ -11,7 +13,6 @@ export default class Main extends React.Component {
         // This binding is necessary to make `this` work in the callback
         this.onclick_dicoverBean = this.onclick_dicoverBean.bind(this);
     }
-
     onclick_dicoverBean() {
         let intervalId;
 
@@ -38,13 +39,13 @@ export default class Main extends React.Component {
                     });
                 }
 
-                intervalId = setInterval(readData, 30000);
+                intervalId = setInterval(readData, 60000); //CHANGE BACK
             });
         });
     }
 
     sendTemp(uuid, currentDate, temp) {
-        console.log('sending post request');
+        console.log('sending post request to server');
         let config = {
           headers: {
             'Content-Type': 'application/json',
@@ -52,8 +53,8 @@ export default class Main extends React.Component {
             'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept'
           }
         }
-        //https://oddworld.herokuapp.com/collect_data
-        axios.post('https://oddworld.herokuapp.com/collect_data', {
+        //http://localhost:3000/collect_data
+        axios.post('https://oddworld.herokuapp.com/collect_data', {  //CHANGE BACK
             'uuid': uuid,
             'timeStamp': currentDate,
             'temp': temp,

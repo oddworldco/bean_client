@@ -1,11 +1,12 @@
+var stream = require('stream');
 var Bean = require('ble-bean');
 var beanStream = require('ble-bean-stream');
 var express = require('express');
 var path = require('path');
 var app = express();
-var json = new require('stream').Transform({objectMode: true});
 var WebSocket = require('ws');
 var fs = require('fs');
+
 
 // Serve up static files
 app.use(express.static(__dirname + '/web'));

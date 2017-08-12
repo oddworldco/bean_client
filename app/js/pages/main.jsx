@@ -15,7 +15,7 @@ export default class Main extends React.Component {
         let intervalId;
 
         Bean.discover((bean) => {
-            console.log('bean found');
+            console.log('bean found!');
             console.log('bean: ' + bean);
 
             bean.on('temp', (temp, valid) => {

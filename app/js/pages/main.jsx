@@ -1,8 +1,6 @@
 import React from 'react';
 import Bean from 'ble-bean';
-import beanStream from 'ble-bean-stream';
 import axios from 'axios';
-import stream from 'stream';
 
 
 //Components
@@ -39,7 +37,7 @@ export default class Main extends React.Component {
                     });
                 }
 
-                intervalId = setInterval(readData, 60000); //CHANGE BACK
+                intervalId = setInterval(readData, 30000); //CHANGE BACK
             });
         });
     }

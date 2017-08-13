@@ -12,35 +12,71 @@ export default class Main extends React.Component {
         this.onclick_dicoverBean = this.onclick_dicoverBean.bind(this);
     }
     onclick_dicoverBean() {
-        let intervalId;
+      let intervalId,
+          connectedBean;
 
-        Bean.discover((bean) => {
-            console.log('bean found!');
-            console.log('bean: ' + bean);
+      Bean.discover((bean) => {
+        console.log('bean found!');
+        console.log('bean: ' + bean);
 
-            bean.on('temp', (temp, valid) => {
-                let currentDate = new Date(),
-                    uuid = bean.uuid;
+        connectedBean = bean;
+        process.on('SIGINT', exitHandler.bind(this));
 
-                if (valid) {
-                    console.log('send temp prep');
-                    this.sendTemp(uuid, currentDate, temp);
-                }
-            });
-
-            bean.connectAndSetup(() => {
-
-                let readData = () => {
-
-                    bean.requestTemp(() => {
-                        console.log('request temp sent');
-                    });
-                }
-
-                intervalId = setInterval(readData, 30000); //CHANGE BACK
-            });
+        bean.on("serial", function(data, valid){
+          console.log(data.toString());
         });
+
+        bean.on("disconnect", function(){
+          process.exit();
+        });
+
+        bean.connectAndSetup(function(){
+
+        });
+        // bean.on('temp', (temp, valid) => {
+        //   let currentDate = new Date(),
+        //     uuid = bean.uuid;
+
+        //   if (valid) {
+        //     console.log('send temp prep');
+        //     //this.sendTemp(uuid, currentDate, temp);
+        //     }
+        // });
+
+        // bean.connectAndSetup(() => {
+        //   console.log('connect and setup');
+        //   let readData = () => {
+        //     console.log('read data');
+
+        //     bean.requestTemp(() => {
+        //         console.log('request temp sent');
+        //     });
+        //   }
+
+        //     intervalId = setInterval(readData, 30000); //CHANGE BACK
+        //   });
+      });
+      //process.stdin.resume();//so the program will not close instantly
+      let triedToExit = false;
+
+      //turns off led before disconnecting
+      let exitHandler = function exitHandler() {
+
+        let self = this;
+        if (connectedBean && !triedToExit) {
+          triedToExit = true;
+          console.log('Turning off led...');
+          clearInterval(intervalId);
+          connectedBean.setColor(new Buffer([0x0,0x0,0x0]), function(){});
+          //no way to know if succesful but often behind other commands going out, so just wait 2 seconds
+          console.log('Disconnecting from Device...');
+          setTimeout(connectedBean.disconnect.bind(connectedBean, function(){}), 2000);
+        } else {
+          process.exit();
+        }
+      };
     }
+
 
     sendTemp(uuid, currentDate, temp) {
         console.log('sending post request to server');

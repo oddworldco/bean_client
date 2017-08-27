@@ -53,7 +53,7 @@ export default class Main extends React.Component {
         }
         //http://localhost:3000/collect_data
         //'https://oddworld.herokuapp.com/collect_data'
-        axios.post('http://localhost:3000/collect_data', {  //CHANGE BACK
+        axios.post('https://oddworld.herokuapp.com/collect_data', {  //CHANGE BACK
             'uuid': uuid,
             'timeStamp': currentDate,
             'temp': temp,

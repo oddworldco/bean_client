@@ -12,38 +12,34 @@ export default class Main extends React.Component {
         this.onclick_dicoverBean = this.onclick_dicoverBean.bind(this);
     }
     onclick_dicoverBean() {
-        let intervalId;
+        let intervalId, obj;
 
         Bean.discover((bean) => {
             console.log('bean found!');
             console.log('bean: ' + bean);
 
-            bean.on('temp', (temp, valid) => {
+            bean.on('serial', (data, valid) => {
                 let currentDate = new Date(),
-                    uuid = bean.uuid;
+                    uuid = bean.uuid,
+                    dataObj = JSON.stringify(data.toString());
+
+                console.log('uuid: ' + uuid);
+                console.log('date: ' + currentDate);
+                console.log('data: ' + data.toString());
 
                 if (valid) {
-                    console.log('send temp prep');
-                    this.sendTemp(uuid, currentDate, temp);
+                    console.log('valid');
+                    this.sendTemp(uuid, currentDate, data.toString());
                 }
             });
 
             bean.connectAndSetup(() => {
-
-                let readData = () => {
-
-                    bean.requestTemp(() => {
-                        console.log('request temp sent');
-                    });
-                }
-
-                intervalId = setInterval(readData, 10000); //CHANGE BACK
             });
         });
     }
 
-    sendTemp(uuid, currentDate, temp) {
-        console.log('sending post request to server');
+    sendTemp(uuid, currentDate, data) {
+        console.log('sending post request to server for: ' + data);
         let config = {
           headers: {
             'Content-Type': 'application/json',
@@ -56,7 +52,7 @@ export default class Main extends React.Component {
         axios.post('https://oddworld.herokuapp.com/collect_data', {  //CHANGE BACK
             'uuid': uuid,
             'timeStamp': currentDate,
-            'temp': temp,
+            'data': data,
         }, 'contentType': 'application/json', config)
         .then((response) => {
             console.log(response);

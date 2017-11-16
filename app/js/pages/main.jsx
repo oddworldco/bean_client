@@ -11,8 +11,8 @@ export default class Main extends React.Component {
         this.onclick_dicoverBean = this.onclick_dicoverBean.bind(this);
         this.onclick_disconnectBean = this.onclick_disconnectBean.bind(this);
         this.state = { connected: false };
-        this.data = {};
-        this.batt = "";
+        this.data = {"b": ""};
+        //this.batt = "";
         this.connectedBean = "";
     }
  
@@ -39,8 +39,6 @@ export default class Main extends React.Component {
 
                 if (valid) {
                     console.log('valid');
-                    // console.log('uuid: ' + uuid);
-                    // console.log('date: ' + currentDate);
                     this.splitString(dataString)
                     if(Object.keys(this.data).length > 6){
                       this.sendTemp(uuid, currentDate, this.data);
@@ -56,7 +54,6 @@ export default class Main extends React.Component {
 
     resetValues() {
       this.data = {};
-      this.batt = "";
     }
 
     splitString(data) {
@@ -69,10 +66,11 @@ export default class Main extends React.Component {
       }
       console.log(stringArray);
       if(stringArray.length == 1){
-        this.batt = stringArray[0];
+        this.data["b"] = stringArray[0];
       } else {
         this.createObj(stringArray);
       }
+      console.log(this.data["b"])
     }
 
     createObj(data) {
@@ -88,10 +86,10 @@ export default class Main extends React.Component {
         } else {
           this.data[tempArray[0]] = tempArray[1].trim();
         }
-        if(this.batt == ""){
+        if(this.data["b"]== ""){
           delete this.data["b"]
         } else {
-          this.data["b"] = this.batt;
+          this.data["b"] = this.data["b"];
         }
       }
       console.log("********")

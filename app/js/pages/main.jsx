@@ -1,7 +1,7 @@
 import React from 'react';
 import Bean from 'ble-bean';
 import axios from 'axios';
-var connectedBean;
+var connectedBean = "";
 
 //Components
 export default class Main extends React.Component {
@@ -11,15 +11,15 @@ export default class Main extends React.Component {
         // This binding is necessary to make `this` work in the callback
         this.onclick_dicoverBean = this.onclick_dicoverBean.bind(this);
         this.onclick_disconnectBean = this.onclick_disconnectBean.bind(this);
+        this.state = { connected: false };
     }
  
 
     onclick_disconnectBean() {
       console.log("disconnecting...")
       setTimeout(connectedBean.disconnect.bind(connectedBean, function(){}), 2000);
-      // TO DO: UPDATE MESSAGING TO SHOW DISCONNECTED    
+      this.setState({ connected: false });
     }
-
 
     onclick_dicoverBean() {
         let intervalId, obj;
@@ -28,22 +28,19 @@ export default class Main extends React.Component {
             console.log('bean found!');
             console.log('bean: ' + bean);
             connectedBean = bean;
+            this.setState({ connected: true });
 
             bean.on('serial', (data, valid) => {
                 let currentDate = new Date(),
                     uuid = bean.uuid,
-                    dataObj = JSON.stringify(data.toString());
-
-                  var buf = new Buffer.from(JSON.stringify(data));
-                  var temp = JSON.parse(buf.toString());
-                console.log(buf)
-                console.log('uuid: ' + uuid);
-                console.log('date: ' + currentDate);
-                console.log('data: ' + data.toString());
-                console.log('dataObj: ' + dataObj);
+                    dataString = data.toString('utf8');
 
                 if (valid) {
                     console.log('valid');
+                    this.splitString(dataString)
+                    console.log('uuid: ' + uuid);
+                    console.log('date: ' + currentDate);
+                    //console.log('data: ' + data.toString());
                     //this.sendTemp(uuid, currentDate, data.toString());
                 }
             });
@@ -51,6 +48,29 @@ export default class Main extends React.Component {
             bean.connectAndSetup(() => {
             });
         });
+    }
+
+    splitString(data) {
+      var string = data,
+      stringArray = new Array();
+      
+      string = string.split(",");
+      for(var i =0; i < string.length; i++){
+        stringArray.push(string[i].trim());
+      }
+      console.log(stringArray);
+      //this.createObj(stringArray);
+    }
+
+    createObj(data) {
+      let string = data,
+      stringArray = new Array();
+      
+      string = string.split(":");
+      for(var i =0; i < string.length; i++){
+        stringArray.push(string[i]);
+      }
+      console.log(stringArray);
     }
 
     sendTemp(uuid, currentDate, data) {
@@ -82,13 +102,14 @@ export default class Main extends React.Component {
             <div>
             	<h1>Smarty Pants</h1>
               <h2>Collect fertility data in your sleep!</h2>
-              <h4></h4>
-                <button onClick={this.onclick_dicoverBean}>
-                    Start streaming!
-                </button>
-                <button onClick={this.onclick_disconnectBean}>
-                    Stop streaing
-                </button>
+              <h4>{ this.state.connected ?  'You are connected' : 'Disconnected...' }</h4>
+
+              <button onClick={this.onclick_dicoverBean}>
+                  Start streaming!
+              </button>
+              <button onClick={this.onclick_disconnectBean}>
+                  Stop streaing
+              </button>
             </div>
         );
     }

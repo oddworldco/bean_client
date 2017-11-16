@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "engines": {
+      "node": "4.6.1"
+    },
   "scripts": {
     "start": "nodemon server.js --ignore app/js/",
     "build-scss": "node-sass --output-style compressed -o web app/scss",

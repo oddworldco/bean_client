@@ -1,7 +1,6 @@
 import React from 'react';
 import Bean from 'ble-bean';
 import axios from 'axios';
-var connectedBean = "";
 
 //Components
 export default class Main extends React.Component {
@@ -12,12 +11,15 @@ export default class Main extends React.Component {
         this.onclick_dicoverBean = this.onclick_dicoverBean.bind(this);
         this.onclick_disconnectBean = this.onclick_disconnectBean.bind(this);
         this.state = { connected: false };
+        this.data = {};
+        this.batt = "";
+        this.connectedBean = "";
     }
  
 
     onclick_disconnectBean() {
       console.log("disconnecting...")
-      setTimeout(connectedBean.disconnect.bind(connectedBean, function(){}), 2000);
+      setTimeout(this.connectedBean.disconnect.bind(this.connectedBean, function(){}), 2000);
       this.setState({ connected: false });
     }
 
@@ -27,7 +29,7 @@ export default class Main extends React.Component {
         Bean.discover((bean) => {
             console.log('bean found!');
             console.log('bean: ' + bean);
-            connectedBean = bean;
+            this.connectedBean = bean;
             this.setState({ connected: true });
 
             bean.on('serial', (data, valid) => {
@@ -37,17 +39,24 @@ export default class Main extends React.Component {
 
                 if (valid) {
                     console.log('valid');
+                    // console.log('uuid: ' + uuid);
+                    // console.log('date: ' + currentDate);
                     this.splitString(dataString)
-                    console.log('uuid: ' + uuid);
-                    console.log('date: ' + currentDate);
-                    //console.log('data: ' + data.toString());
-                    //this.sendTemp(uuid, currentDate, data.toString());
+                    if(Object.keys(this.data).length > 6){
+                      this.sendTemp(uuid, currentDate, this.data);
+                      this.resetValues();
+                    }
                 }
             });
 
             bean.connectAndSetup(() => {
             });
         });
+    }
+
+    resetValues() {
+      this.data = {};
+      this.batt = "";
     }
 
     splitString(data) {
@@ -59,18 +68,34 @@ export default class Main extends React.Component {
         stringArray.push(string[i].trim());
       }
       console.log(stringArray);
-      //this.createObj(stringArray);
+      if(stringArray.length == 1){
+        this.batt = stringArray[0];
+      } else {
+        this.createObj(stringArray);
+      }
     }
 
     createObj(data) {
-      let string = data,
-      stringArray = new Array();
+      var array = data,
+      jsonArray = {}
       
-      string = string.split(":");
-      for(var i =0; i < string.length; i++){
-        stringArray.push(string[i]);
+      for(var i =0; i < array.length; i++){
+        var tempArray;
+        tempArray = array[i].split(":");
+        //tempObj = '"' + tempArray[0] + '": "' + tempArray[1] + '"';
+        if(parseInt(tempArray[1],10)){
+          this.data[tempArray[0]] = parseInt(tempArray[1],10)
+        } else {
+          this.data[tempArray[0]] = tempArray[1].trim();
+        }
+        if(this.batt == ""){
+          delete this.data["b"]
+        } else {
+          this.data["b"] = this.batt;
+        }
       }
-      console.log(stringArray);
+      console.log("********")
+      console.log(this.data);
     }
 
     sendTemp(uuid, currentDate, data) {

@@ -39,61 +39,13 @@ export default class Main extends React.Component {
 
                 if (valid) {
                     console.log('valid');
-                    this.splitString(dataString)
-                    if(Object.keys(this.data).length > 6){
-                      this.sendTemp(uuid, currentDate, this.data);
-                      this.resetValues();
-                    }
+                    this.sendTemp(uuid, currentDate, this.data);
                 }
             });
 
             bean.connectAndSetup(() => {
             });
         });
-    }
-
-    resetValues() {
-      this.data = {};
-    }
-
-    splitString(data) {
-      var string = data,
-      stringArray = new Array();
-      
-      string = string.split(",");
-      for(var i =0; i < string.length; i++){
-        stringArray.push(string[i].trim());
-      }
-      console.log(stringArray);
-      if(stringArray.length == 1){
-        this.data["b"] = stringArray[0];
-      } else {
-        this.createObj(stringArray);
-      }
-      console.log(this.data["b"])
-    }
-
-    createObj(data) {
-      var array = data,
-      jsonArray = {}
-      
-      for(var i =0; i < array.length; i++){
-        var tempArray;
-        tempArray = array[i].split(":");
-        //tempObj = '"' + tempArray[0] + '": "' + tempArray[1] + '"';
-        if(parseInt(tempArray[1],10)){
-          this.data[tempArray[0]] = parseInt(tempArray[1],10)
-        } else {
-          this.data[tempArray[0]] = tempArray[1].trim();
-        }
-        if(this.data["b"]== ""){
-          delete this.data["b"]
-        } else {
-          this.data["b"] = this.data["b"];
-        }
-      }
-      console.log("********")
-      console.log(this.data);
     }
 
     sendTemp(uuid, currentDate, data) {

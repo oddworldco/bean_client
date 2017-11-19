@@ -10,7 +10,7 @@
     "start": "node server.js",
     "build-scss": "node-sass --output-style compressed -o web app/scss",
     "watch-scss": "nodemon -e scss -x \"npm run build-scss\"",
-    "build-js": "babel app --watch --out-file web/bundle.js --presets=es2015,react",
+    "build-js": "babel app --watch --out-file web/bundle.js --presets=es2015,react --plugins transform-react-jsx",
     "watch-js": "webpack -d --watch",
     "build": "parallelshell \"npm run build-scss\" \"npm run build-js\"",
     "watch": "parallelshell \"npm run watch-scss\" \"npm run watch-js\"",
@@ -34,6 +34,7 @@
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
+    "babel-plugin-transform-react-jsx": "^6.24.1",
     "babel-preset-es2015": "^6.24.1",
     "babel-preset-react": "^6.24.1",
     "dotenv": "^4.0.0",

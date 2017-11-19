@@ -1,6 +1,7 @@
 var express = require('express');
 var path = require('path');
 var app = express();
+const PORT = process.env.PORT || 5000
 
 // Serve up static files
 app.use(express.static(__dirname + '/dist'));
@@ -10,6 +11,4 @@ app.get('/', function (req, res) {
 });
 
 // Start Server
-app.listen(process.env.PORT || 4205, function() {
-	console.log('Server: Running on port: 4205');
-});
+app.listen(port);

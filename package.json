@@ -4,14 +4,14 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon server.js --ignore app/js/",
+    "start": "node server.js",
     "build-scss": "node-sass --output-style compressed -o web app/scss",
     "watch-scss": "nodemon -e scss -x \"npm run build-scss\"",
     "build-js": "webpack -p",
     "watch-js": "webpack -d --watch",
     "build": "parallelshell \"npm run build-scss\" \"npm run build-js\"",
     "watch": "parallelshell \"npm run watch-scss\" \"npm run watch-js\"",
-    "dev": "parallelshell \"npm run server\" \"npm run watch\"",
+    "dev": "nodemon server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
@@ -34,9 +34,11 @@
     "babel-loader": "7.1.2",
     "babel-preset-es2015": "6.24.1",
     "babel-preset-react": "6.24.1",
+    "dotenv": "^4.0.0",
     "html-webpack-plugin": "2.30.1",
     "node-sass": "4.6.1",
     "nodemon": "1.12.0",
+    "npm-update-all": "^1.0.1",
     "parallelshell": "2.0.0",
     "react-hot-loader": "3.0.0-beta.6",
     "webpack": "2.2.1"

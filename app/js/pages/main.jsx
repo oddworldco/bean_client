@@ -9,19 +9,8 @@ export default class Main extends React.Component {
 
         // This binding is necessary to make `this` work in the callback
         this.onclick_dicoverBean = this.onclick_dicoverBean.bind(this);
-        this.onclick_disconnectBean = this.onclick_disconnectBean.bind(this);
-        this.state = { connected: false };
-        this.data = {"b": ""};
-        //this.batt = "";
-        this.connectedBean = "";
     }
  
-
-    onclick_disconnectBean() {
-      console.log("disconnecting...")
-      setTimeout(this.connectedBean.disconnect.bind(this.connectedBean, function(){}), 2000);
-      this.setState({ connected: false });
-    }
 
     onclick_dicoverBean() {
         let intervalId, obj;
@@ -29,8 +18,6 @@ export default class Main extends React.Component {
         Bean.discover((bean) => {
             console.log('bean found!');
             console.log('bean: ' + bean);
-            this.connectedBean = bean;
-            this.setState({ connected: true });
 
             bean.on('serial', (data, valid) => {
                 let currentDate = new Date(),
@@ -77,13 +64,8 @@ export default class Main extends React.Component {
             <div>
             	<h1>Smarty Pants</h1>
               <h2>Collect fertility data in your sleep!</h2>
-              <h4>{ this.state.connected ?  'You are connected' : 'Disconnected...' }</h4>
-
               <button onClick={this.onclick_dicoverBean}>
                   Start streaming!
-              </button>
-              <button onClick={this.onclick_disconnectBean}>
-                  Stop streaing
               </button>
             </div>
         );

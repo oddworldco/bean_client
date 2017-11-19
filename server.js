@@ -1,7 +1,7 @@
 var express = require('express');
 var path = require('path');
 var app = express();
-const PORT = process.env.PORT || 5000
+const PORT = process.env.PORT || 4205
 
 // Serve up static files
 app.use(express.static(__dirname + '/dist'));

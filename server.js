@@ -5,7 +5,7 @@ var app = express();
 // Serve up static files
 app.use(express.static(__dirname + '/dist'));
 
-app.get('/', function (req, res) {
+app.get('*', function (req, res) {
 	const index = path.join(__dirname, 'dist', 'index.html');
 	res.sendFile(index);
 });

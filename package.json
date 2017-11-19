@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon server.js --ignore app/js/",
+    "start": "node server.js",
     "build-scss": "node-sass --output-style compressed -o web app/scss",
     "watch-scss": "nodemon -e scss -x \"npm run build-scss\"",
     "build-js": "webpack -p",
@@ -21,7 +21,10 @@
     "express": "^4.14.1",
     "react": "^15.4.2",
     "react-dom": "^15.4.2",
-    "react-router": "^3.0.2"
+    "react-router": "^3.0.2",
+    "socket.io-client": "^2.0.3",
+    "stream": "0.0.2",
+    "ws": "^3.0.0"
   },
   "devDependencies": {
     "babel": "^6.23.0",

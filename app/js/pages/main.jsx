@@ -1,8 +1,8 @@
 import React from 'react';
+// Bean
 import Bean from 'ble-bean';
-import axios from 'axios';
-
-//Components
+import beanStream from 'ble-bean-stream';
+import { Transform } from 'stream';
 
 export default class Main extends React.Component {
     constructor() {
@@ -13,48 +13,36 @@ export default class Main extends React.Component {
     }
 
     onclick_dicoverBean() {
-        let intervalId;
+        let json = new Transform({objectMode: true});
 
-        Bean.discover((bean) => {
-            console.log('bean: ' + bean);
+        json._transform = (chunk, encoding, callback) => {
+            // let streamData = JSON.stringify(chunk);
 
-            bean.on('temp', (temp, valid) => {
-                let currentDate = new Date(),
-                    uuid = bean.uuid;
+            // console.log(streamData);
 
-                if (valid) {
-                    this.sendTemp(uuid, currentDate, temp);
-                }
-            });
+            // return streamData;
+            json.push(JSON.stringify(chunk) + '\r\n');
 
-            bean.connectAndSetup(() => {
-                let readData = () => {
-
-                    bean.requestTemp(() => {
-                        console.log('request temp sent');
-                    });
-                }
-
-                intervalId = setInterval(readData, 1800000);
-            });
-        });
-    }
-
-    sendTemp(uuid, currentDate, temp) {
-        let config = {
-            headers: {'Content-Type': 'application/json'}
+            console.log('data: ', JSON.stringify(chunk));
+            callback();
         }
 
-        axios.post('http://192.168.1.20:3000/collect_data', {
-            'uuid': uuid,
-            'timeStamp': currentDate,
-            'temp': temp,
-        }, config)
-        .then((response) => {
-            console.log(response);
-        })
-        .catch((error) => {
-            console.log(error);
+        Bean.discover((bean) => {
+            console.log('bean: ', bean);
+            
+            let beanReadable = beanStream.createReadStream(bean, {
+                poll: 5000,
+                pollTemp: true
+
+                // beforePush: (data) => {
+                //   data.timestamp = new Date();
+                //   return data;
+                // }
+            });
+
+            beanReadable.pipe(json);
+
+            console.log('json:', json);
         });
     }
 

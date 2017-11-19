@@ -7,10 +7,6 @@
   "scripts": {
     "start": "node server.js"
   },
-  "engines": {
-    "node": "6.10.2",
-    "npm": "3.10.10"
-  },
   "dependencies": {
   }
 }

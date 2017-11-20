@@ -2,7 +2,7 @@ var express = require('express');
 var path = require('path');
 var app = express();
 var axios = require('axios');
-var Bean = require('ble-bean');
+// var Bean = require('ble-bean');
 // var WebSocket = require('ws');
 
 // Serve up static files

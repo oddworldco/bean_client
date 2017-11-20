@@ -981,7 +981,7 @@ var Hello = function (_Component) {
       return _react2.default.createElement(
         'div',
         null,
-        'Hello from react!!! push 3',
+        'Hello from react!!! push 4',
         _react2.default.createElement('img', { src: _keen2.default, alt: 'Commander Keen' })
       );
     }

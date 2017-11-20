@@ -10,7 +10,7 @@ export default class Hello extends Component {
     return (
       <div>
         Hello from react!!!
-        push 1
+        push 2
 
         <img src={ keenImage } alt='Commander Keen' />
       </div>

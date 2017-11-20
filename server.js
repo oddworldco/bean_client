@@ -1,9 +1,6 @@
 var express = require('express');
 var path = require('path');
 var app = express();
-var axios = require('axios');
-var Bean = require('ble-bean');
-var beanStream = require('ble-bean-stream');
 
 // var WebSocket = require('ws');
 

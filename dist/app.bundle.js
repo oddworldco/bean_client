@@ -22098,17 +22098,157 @@ var Hello = function (_React$Component) {
   function Hello() {
     _classCallCheck(this, Hello);
 
-    return _possibleConstructorReturn(this, (Hello.__proto__ || Object.getPrototypeOf(Hello)).apply(this, arguments));
+    // This binding is necessary to make `this` work in the callback
+    var _this = _possibleConstructorReturn(this, (Hello.__proto__ || Object.getPrototypeOf(Hello)).call(this));
+
+    _this.onclick_dicoverBean = _this.onclick_dicoverBean.bind(_this);
+    _this.onclick_disconnectBean = _this.onclick_disconnectBean.bind(_this);
+    _this.state = { connected: false };
+    _this.data = { "b": "" };
+    //this.batt = "";
+    _this.connectedBean = "";
+    return _this;
   }
 
   _createClass(Hello, [{
+    key: 'onclick_disconnectBean',
+    value: function onclick_disconnectBean() {
+      console.log("disconnecting...");
+      setTimeout(this.connectedBean.disconnect.bind(this.connectedBean, function () {}), 2000);
+      this.setState({ connected: false });
+    }
+  }, {
+    key: 'onclick_dicoverBean',
+    value: function onclick_dicoverBean() {
+      var _this2 = this;
+
+      var intervalId = void 0,
+          obj = void 0;
+
+      _bleBean2.default.discover(function (bean) {
+        console.log('bean found!');
+        console.log('bean: ' + bean);
+        _this2.connectedBean = bean;
+        _this2.setState({ connected: true });
+
+        bean.on('serial', function (data, valid) {
+          var currentDate = new Date(),
+              uuid = bean.uuid,
+              dataString = data.toString('utf8');
+
+          if (valid) {
+            console.log('valid');
+            _this2.splitString(dataString);
+            if (Object.keys(_this2.data).length > 6) {
+              _this2.sendTemp(uuid, currentDate, _this2.data);
+              _this2.resetValues();
+            }
+          }
+        });
+
+        bean.connectAndSetup(function () {});
+      });
+    }
+  }, {
+    key: 'resetValues',
+    value: function resetValues() {
+      this.data = {};
+    }
+  }, {
+    key: 'splitString',
+    value: function splitString(data) {
+      var string = data,
+          stringArray = new Array();
+
+      string = string.split(",");
+      for (var i = 0; i < string.length; i++) {
+        stringArray.push(string[i].trim());
+      }
+      console.log(stringArray);
+      if (stringArray.length == 1) {
+        this.data["b"] = stringArray[0];
+      } else {
+        this.createObj(stringArray);
+      }
+      console.log(this.data["b"]);
+    }
+  }, {
+    key: 'createObj',
+    value: function createObj(data) {
+      var array = data,
+          jsonArray = {};
+
+      for (var i = 0; i < array.length; i++) {
+        var tempArray;
+        tempArray = array[i].split(":");
+        //tempObj = '"' + tempArray[0] + '": "' + tempArray[1] + '"';
+        if (parseInt(tempArray[1], 10)) {
+          this.data[tempArray[0]] = parseInt(tempArray[1], 10);
+        } else {
+          this.data[tempArray[0]] = tempArray[1].trim();
+        }
+        if (this.data["b"] == "") {
+          delete this.data["b"];
+        } else {
+          this.data["b"] = this.data["b"];
+        }
+      }
+      console.log("********");
+      console.log(this.data);
+    }
+  }, {
+    key: 'sendTemp',
+    value: function sendTemp(uuid, currentDate, data) {
+      console.log('sending post request to server for: ' + data);
+      var config = {
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept'
+        }
+        //http://localhost:3000/collect_data
+        //'https://oddworld.herokuapp.com/collect_data'
+      };_axios2.default.post('https://oddworld.herokuapp.com/web_test', { //CHANGE BACK
+        'uuid': uuid,
+        'timeStamp': currentDate,
+        'data': data
+      }, 'contentType', config).then(function (response) {
+        console.log(response);
+      }).catch(function (error) {
+        console.log(error);
+      });
+    }
+  }, {
     key: 'render',
     value: function render() {
       return _react2.default.createElement(
         'div',
         null,
-        'Hello from react!!! push 6',
-        _react2.default.createElement('img', { src: _keen2.default, alt: 'Commander Keen' })
+        _react2.default.createElement(
+          'h1',
+          null,
+          'Smarty Pants'
+        ),
+        _react2.default.createElement(
+          'h2',
+          null,
+          'Collect fertility data in your sleep!'
+        ),
+        _react2.default.createElement(
+          'h4',
+          null,
+          this.state.connected ? 'You are connected' : 'Disconnected...'
+        ),
+        _react2.default.createElement(
+          'button',
+          { onClick: this.onclick_dicoverBean },
+          'Start streaming!'
+        ),
+        _react2.default.createElement(
+          'button',
+          { onClick: this.onclick_disconnectBean },
+          'Stop streaing'
+        )
       );
     }
   }]);
@@ -44966,7 +45106,7 @@ module.exports.makeKey = makeKey
 /* 203 */
 /***/ (function(module, exports) {
 
-module.exports = {"_from":"elliptic@^6.0.0","_id":"elliptic@6.4.0","_inBundle":false,"_integrity":"sha1-ysmvh2LIWDYYcAPI3+GT5eLq5d8=","_location":"/elliptic","_phantomChildren":{},"_requested":{"type":"range","registry":true,"raw":"elliptic@^6.0.0","name":"elliptic","escapedName":"elliptic","rawSpec":"^6.0.0","saveSpec":null,"fetchSpec":"^6.0.0"},"_requiredBy":["/browserify-sign","/create-ecdh"],"_resolved":"https://registry.npmjs.org/elliptic/-/elliptic-6.4.0.tgz","_shasum":"cac9af8762c85836187003c8dfe193e5e2eae5df","_spec":"elliptic@^6.0.0","_where":"/Users/Gaby/Desktop/bean_client/node_modules/browserify-sign","author":{"name":"Fedor Indutny","email":"fedor@indutny.com"},"bugs":{"url":"https://github.com/indutny/elliptic/issues"},"bundleDependencies":false,"dependencies":{"bn.js":"^4.4.0","brorand":"^1.0.1","hash.js":"^1.0.0","hmac-drbg":"^1.0.0","inherits":"^2.0.1","minimalistic-assert":"^1.0.0","minimalistic-crypto-utils":"^1.0.0"},"deprecated":false,"description":"EC cryptography","devDependencies":{"brfs":"^1.4.3","coveralls":"^2.11.3","grunt":"^0.4.5","grunt-browserify":"^5.0.0","grunt-cli":"^1.2.0","grunt-contrib-connect":"^1.0.0","grunt-contrib-copy":"^1.0.0","grunt-contrib-uglify":"^1.0.1","grunt-mocha-istanbul":"^3.0.1","grunt-saucelabs":"^8.6.2","istanbul":"^0.4.2","jscs":"^2.9.0","jshint":"^2.6.0","mocha":"^2.1.0"},"files":["lib"],"homepage":"https://github.com/indutny/elliptic","keywords":["EC","Elliptic","curve","Cryptography"],"license":"MIT","main":"lib/elliptic.js","name":"elliptic","repository":{"type":"git","url":"git+ssh://git@github.com/indutny/elliptic.git"},"scripts":{"jscs":"jscs benchmarks/*.js lib/*.js lib/**/*.js lib/**/**/*.js test/index.js","jshint":"jscs benchmarks/*.js lib/*.js lib/**/*.js lib/**/**/*.js test/index.js","lint":"npm run jscs && npm run jshint","test":"npm run lint && npm run unit","unit":"istanbul test _mocha --reporter=spec test/index.js","version":"grunt dist && git add dist/"},"version":"6.4.0"}
+module.exports = {"_args":[["elliptic@6.4.0","/Users/Gaby/Desktop/bean_client"]],"_from":"elliptic@6.4.0","_id":"elliptic@6.4.0","_inBundle":false,"_integrity":"sha1-ysmvh2LIWDYYcAPI3+GT5eLq5d8=","_location":"/elliptic","_phantomChildren":{},"_requested":{"type":"version","registry":true,"raw":"elliptic@6.4.0","name":"elliptic","escapedName":"elliptic","rawSpec":"6.4.0","saveSpec":null,"fetchSpec":"6.4.0"},"_requiredBy":["/browserify-sign","/create-ecdh"],"_resolved":"https://registry.npmjs.org/elliptic/-/elliptic-6.4.0.tgz","_spec":"6.4.0","_where":"/Users/Gaby/Desktop/bean_client","author":{"name":"Fedor Indutny","email":"fedor@indutny.com"},"bugs":{"url":"https://github.com/indutny/elliptic/issues"},"dependencies":{"bn.js":"^4.4.0","brorand":"^1.0.1","hash.js":"^1.0.0","hmac-drbg":"^1.0.0","inherits":"^2.0.1","minimalistic-assert":"^1.0.0","minimalistic-crypto-utils":"^1.0.0"},"description":"EC cryptography","devDependencies":{"brfs":"^1.4.3","coveralls":"^2.11.3","grunt":"^0.4.5","grunt-browserify":"^5.0.0","grunt-cli":"^1.2.0","grunt-contrib-connect":"^1.0.0","grunt-contrib-copy":"^1.0.0","grunt-contrib-uglify":"^1.0.1","grunt-mocha-istanbul":"^3.0.1","grunt-saucelabs":"^8.6.2","istanbul":"^0.4.2","jscs":"^2.9.0","jshint":"^2.6.0","mocha":"^2.1.0"},"files":["lib"],"homepage":"https://github.com/indutny/elliptic","keywords":["EC","Elliptic","curve","Cryptography"],"license":"MIT","main":"lib/elliptic.js","name":"elliptic","repository":{"type":"git","url":"git+ssh://git@github.com/indutny/elliptic.git"},"scripts":{"jscs":"jscs benchmarks/*.js lib/*.js lib/**/*.js lib/**/**/*.js test/index.js","jshint":"jscs benchmarks/*.js lib/*.js lib/**/*.js lib/**/**/*.js test/index.js","lint":"npm run jscs && npm run jshint","test":"npm run lint && npm run unit","unit":"istanbul test _mocha --reporter=spec test/index.js","version":"grunt dist && git add dist/"},"version":"6.4.0"}
 
 /***/ }),
 /* 204 */

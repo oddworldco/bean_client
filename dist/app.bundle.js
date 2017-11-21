@@ -22103,9 +22103,9 @@ var Hello = function (_React$Component) {
 
     _this.onclick_dicoverBean = _this.onclick_dicoverBean.bind(_this);
     _this.onclick_disconnectBean = _this.onclick_disconnectBean.bind(_this);
-    _this.state = { connected: false };
+    _this.state = { connected: false, status: "" };
     _this.data = {};
-    //this.batt = "";
+    _this.dataCollected;
     _this.connectedBean = "";
     return _this;
   }
@@ -22130,6 +22130,7 @@ var Hello = function (_React$Component) {
         console.log('bean: ' + bean);
         _this2.connectedBean = bean;
         _this2.setState({ connected: true });
+        _this2.state.status = "fetching data...";
 
         bean.on('serial', function (data, valid) {
           var currentDate = new Date(),
@@ -22139,10 +22140,10 @@ var Hello = function (_React$Component) {
           if (valid) {
             console.log('valid');
             _this2.splitString(dataString);
-            // if(Object.keys(this.data).length > 5){
-            //   // this.sendTemp(uuid, currentDate, this.data);
-            //   this.resetValues();
-            // }
+            if (Object.keys(_this2.data).length > 5) {
+              // this.sendTemp(uuid, currentDate, this.data);
+              _this2.resetValues();
+            }
           }
         });
 
@@ -22159,6 +22160,8 @@ var Hello = function (_React$Component) {
     value: function splitString(data) {
       var string = data,
           stringArray = new Array();
+
+      this.state.status = "data received";
 
       string = string.split(",");
       for (var i = 0; i < string.length; i++) {
@@ -22179,6 +22182,8 @@ var Hello = function (_React$Component) {
       var array = data,
           jsonArray = {};
       console.log('0');
+      this.state.status = "compiling data...";
+
       for (var i = 0; i < array.length; i++) {
         var tempArray, val;
         console.log('1');
@@ -22213,6 +22218,7 @@ var Hello = function (_React$Component) {
   }, {
     key: 'sendTemp',
     value: function sendTemp(uuid, currentDate, data) {
+      this.state.status = "sending data to database";
       console.log('sending post request to server for: ' + data);
       var config = {
         headers: {
@@ -22222,7 +22228,7 @@ var Hello = function (_React$Component) {
         }
         //http://localhost:3000/collect_data
         //'https://oddworld.herokuapp.com/collect_data'
-      };_axios2.default.post('https://oddworld.herokuapp.com/web_test', { //CHANGE BACK
+      };_axios2.default.post('https://oddworld.herokuapp.com/collect_data', { //CHANGE BACK
         'uuid': uuid,
         'timeStamp': currentDate,
         'data': data
@@ -22244,13 +22250,13 @@ var Hello = function (_React$Component) {
           'Smarty Pants'
         ),
         _react2.default.createElement(
-          'h2',
+          'h3',
           null,
           'Collect fertility data in your sleep!'
         ),
         _react2.default.createElement(
           'h4',
-          null,
+          { 'data-connected': this.state.connected },
           this.state.connected ? 'You are connected' : 'Disconnected...'
         ),
         _react2.default.createElement(
@@ -22262,6 +22268,20 @@ var Hello = function (_React$Component) {
           'button',
           { onClick: this.onclick_disconnectBean },
           'Stop streaing'
+        ),
+        _react2.default.createElement(
+          'h5',
+          null,
+          this.state.status
+        ),
+        _react2.default.createElement(
+          'div',
+          null,
+          _react2.default.createElement(
+            'a',
+            { href: 'https://www.tinyurl.com/smartypantsbbt' },
+            'Log Oral Temp Data'
+          )
         )
       );
     }

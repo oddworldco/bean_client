@@ -14,9 +14,9 @@ export default class Hello extends React.Component {
       // This binding is necessary to make `this` work in the callback
       this.onclick_dicoverBean = this.onclick_dicoverBean.bind(this);
       this.onclick_disconnectBean = this.onclick_disconnectBean.bind(this);
-      this.state = { connected: false };
+      this.state = { connected: false, status: "" };
       this.data = {};
-      //this.batt = "";
+      this.dataCollected;
       this.connectedBean = "";
   }
   
@@ -35,6 +35,7 @@ export default class Hello extends React.Component {
           console.log('bean: ' + bean);
           this.connectedBean = bean;
           this.setState({ connected: true });
+          this.state.status = "fetching data..."
 
           bean.on('serial', (data, valid) => {
               let currentDate = new Date(),
@@ -45,7 +46,7 @@ export default class Hello extends React.Component {
                   console.log('valid');
                   this.splitString(dataString)
                   if(Object.keys(this.data).length > 5){
-                    // this.sendTemp(uuid, currentDate, this.data);
+                    this.sendTemp(uuid, currentDate, this.data);
                     this.resetValues();
                   }
               }
@@ -63,7 +64,9 @@ export default class Hello extends React.Component {
   splitString(data) {
     var string = data,
     stringArray = new Array();
-    
+
+    this.state.status = "data received"
+
     string = string.split(",");
     for(var i =0; i < string.length; i++){
       stringArray.push(string[i].trim());
@@ -82,6 +85,8 @@ export default class Hello extends React.Component {
     var array = data,
     jsonArray = {}
     console.log('0')
+    this.state.status = "compiling data..."
+
     for(var i =0; i < array.length; i++){
       var tempArray, val;
       console.log('1')
@@ -115,6 +120,7 @@ export default class Hello extends React.Component {
   }
 
   sendTemp(uuid, currentDate, data) {
+      this.state.status = "sending data to database";
       console.log('sending post request to server for: ' + data);
       let config = {
         headers: {
@@ -125,7 +131,7 @@ export default class Hello extends React.Component {
       }
       //http://localhost:3000/collect_data
       //'https://oddworld.herokuapp.com/collect_data'
-      axios.post('https://oddworld.herokuapp.com/web_test', {  //CHANGE BACK
+      axios.post('https://oddworld.herokuapp.com/collect_data', {  //CHANGE BACK
           'uuid': uuid,
           'timeStamp': currentDate,
           'data': data,
@@ -142,8 +148,8 @@ export default class Hello extends React.Component {
       return (
           <div>
             <h1>Smarty Pants</h1>
-            <h2>Collect fertility data in your sleep!</h2>
-            <h4>{ this.state.connected ?  'You are connected' : 'Disconnected...' }</h4>
+            <h3>Collect fertility data in your sleep!</h3>
+            <h4 data-connected = { this.state.connected } >{ this.state.connected ?  'You are connected' : 'Disconnected...' }</h4>
 
             <button onClick={this.onclick_dicoverBean}>
                 Start streaming!
@@ -151,7 +157,10 @@ export default class Hello extends React.Component {
             <button onClick={this.onclick_disconnectBean}>
                 Stop streaing
             </button>
+            <h5>{this.state.status}</h5>
+            <div><a href="https://www.tinyurl.com/smartypantsbbt">Log Oral Temp Data</a></div>
           </div>
+
       );
   }
 }

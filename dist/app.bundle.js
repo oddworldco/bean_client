@@ -22104,7 +22104,7 @@ var Hello = function (_React$Component) {
     _this.onclick_dicoverBean = _this.onclick_dicoverBean.bind(_this);
     _this.onclick_disconnectBean = _this.onclick_disconnectBean.bind(_this);
     _this.state = { connected: false };
-    _this.data = { "b": "" };
+    _this.data = {};
     //this.batt = "";
     _this.connectedBean = "";
     return _this;
@@ -22139,10 +22139,10 @@ var Hello = function (_React$Component) {
           if (valid) {
             console.log('valid');
             _this2.splitString(dataString);
-            if (Object.keys(_this2.data).length > 6) {
-              _this2.sendTemp(uuid, currentDate, _this2.data);
-              _this2.resetValues();
-            }
+            // if(Object.keys(this.data).length > 5){
+            //   // this.sendTemp(uuid, currentDate, this.data);
+            //   this.resetValues();
+            // }
           }
         });
 
@@ -22165,8 +22165,9 @@ var Hello = function (_React$Component) {
         stringArray.push(string[i].trim());
       }
       console.log(stringArray);
+
       if (stringArray.length == 1) {
-        this.data["b"] = stringArray[0];
+        this.data["b"] = parseInt(stringArray[0], 10);
       } else {
         this.createObj(stringArray);
       }
@@ -22177,21 +22178,34 @@ var Hello = function (_React$Component) {
     value: function createObj(data) {
       var array = data,
           jsonArray = {};
-
+      console.log('0');
       for (var i = 0; i < array.length; i++) {
-        var tempArray;
+        var tempArray, val;
+        console.log('1');
         tempArray = array[i].split(":");
-        //tempObj = '"' + tempArray[0] + '": "' + tempArray[1] + '"';
         if (parseInt(tempArray[1], 10)) {
-          this.data[tempArray[0]] = parseInt(tempArray[1], 10);
+          console.log('2');
+          val = parseInt(tempArray[1], 10);
+          this.data[tempArray[0]] = val;
+          // if tempArray["b"] has one value, this needs to be concatinated with this.data["b"]
+          // check if key is "b"
+          // if(tempArray[0].hasOwnProperty("b")) {
+          //   if(tempArray[1].length == 1){
+          //     this.data[tempArray[0]] = tempArray[1] + this.data["b"]
+          //   }
+          // }
+        } else if (tempArray[1] == "") {
+          console.log("battery data found");
+          delete tempArray[0];
         } else {
-          this.data[tempArray[0]] = tempArray[1].trim();
+          console.log('4');
+          console.log(this.data["b"]);
+          console.log(tempArray[0]);
+          val = tempArray[1].trim();
+          this.data[tempArray[0]] = val;
         }
-        if (this.data["b"] == "") {
-          delete this.data["b"];
-        } else {
-          this.data["b"] = this.data["b"];
-        }
+
+        console.log(tempArray[0]);
       }
       console.log("********");
       console.log(this.data);

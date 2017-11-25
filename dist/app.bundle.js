@@ -22103,7 +22103,7 @@ var Hello = function (_React$Component) {
 
     _this.onclick_dicoverBean = _this.onclick_dicoverBean.bind(_this);
     _this.onclick_disconnectBean = _this.onclick_disconnectBean.bind(_this);
-    _this.state = { connected: false, status: "" };
+    _this.state = { connected: false, status: "loading temp...", counter: "" };
     _this.data = {};
     _this.dataCollected;
     _this.connectedBean = "";
@@ -22130,18 +22130,25 @@ var Hello = function (_React$Component) {
         console.log('bean: ' + bean);
         _this2.connectedBean = bean;
         _this2.setState({ connected: true });
-        _this2.state.status = "fetching data...";
 
         bean.on('serial', function (data, valid) {
           var currentDate = new Date(),
               uuid = bean.uuid,
               dataString = data.toString('utf8');
+          _this2.setState({ status: "fetching data..." });
+          var count = 60,
+              timer = setInterval(function () {
+            count = count - 1;
+            console.log(count);
+            if (count == 1) clearInterval(timer);
+          }, 1000);
 
           if (valid) {
             console.log('valid');
             _this2.splitString(dataString);
             if (Object.keys(_this2.data).length > 5) {
-              // this.sendTemp(uuid, currentDate, this.data);
+              console.log("post!!!");
+              _this2.sendTemp(uuid, currentDate, _this2.data);
               _this2.resetValues();
             }
           }
@@ -22154,6 +22161,7 @@ var Hello = function (_React$Component) {
     key: 'resetValues',
     value: function resetValues() {
       this.data = {};
+      this.setState({ status: "fetching data..." });
     }
   }, {
     key: 'splitString',
@@ -22161,7 +22169,7 @@ var Hello = function (_React$Component) {
       var string = data,
           stringArray = new Array();
 
-      this.state.status = "data received";
+      this.setState({ status: "data received" });
 
       string = string.split(",");
       for (var i = 0; i < string.length; i++) {
@@ -22182,7 +22190,7 @@ var Hello = function (_React$Component) {
       var array = data,
           jsonArray = {};
       console.log('0');
-      this.state.status = "compiling data...";
+      this.setState({ status: "compiling data..." });
 
       for (var i = 0; i < array.length; i++) {
         var tempArray, val;
@@ -22215,10 +22223,24 @@ var Hello = function (_React$Component) {
       console.log("********");
       console.log(this.data);
     }
+
+    // timer() {
+    //   var count = 60,
+    //       timer = setInterval(function() {
+    //       count = count-1;
+    //       this.setState({ counter: count });
+    //       console.log(count);
+    //       if(count == 1) clearInterval(timer);
+    //     }, 1000);
+    // } 
+
   }, {
     key: 'sendTemp',
     value: function sendTemp(uuid, currentDate, data) {
-      this.state.status = "sending data to database";
+      var _this3 = this;
+
+      this.setState({ status: "sending data to database" });
+
       console.log('sending post request to server for: ' + data);
       var config = {
         headers: {
@@ -22233,8 +22255,10 @@ var Hello = function (_React$Component) {
         'timeStamp': currentDate,
         'data': data
       }, 'contentType', config).then(function (response) {
+        _this3.setState({ status: "data logged!" });
         console.log(response);
       }).catch(function (error) {
+        _this3.setState({ status: "error logging data :(" });
         console.log(error);
       });
     }
@@ -22260,6 +22284,16 @@ var Hello = function (_React$Component) {
           this.state.connected ? 'You are connected' : 'Disconnected...'
         ),
         _react2.default.createElement(
+          'h4',
+          null,
+          this.state.connected ? this.state.status : ""
+        ),
+        _react2.default.createElement(
+          'h5',
+          null,
+          this.state.counter
+        ),
+        _react2.default.createElement(
           'button',
           { onClick: this.onclick_dicoverBean },
           'Start streaming!'
@@ -22268,11 +22302,6 @@ var Hello = function (_React$Component) {
           'button',
           { onClick: this.onclick_disconnectBean },
           'Stop streaing'
-        ),
-        _react2.default.createElement(
-          'h5',
-          null,
-          this.state.status
         ),
         _react2.default.createElement(
           'div',

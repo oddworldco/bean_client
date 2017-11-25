@@ -14,7 +14,7 @@ export default class Hello extends React.Component {
       // This binding is necessary to make `this` work in the callback
       this.onclick_dicoverBean = this.onclick_dicoverBean.bind(this);
       this.onclick_disconnectBean = this.onclick_disconnectBean.bind(this);
-      this.state = { connected: false, status: "" };
+      this.state = { connected: false, status: "loading temp...", counter: ""};
       this.data = {};
       this.dataCollected;
       this.connectedBean = "";
@@ -35,17 +35,24 @@ export default class Hello extends React.Component {
           console.log('bean: ' + bean);
           this.connectedBean = bean;
           this.setState({ connected: true });
-          this.state.status = "fetching data..."
 
           bean.on('serial', (data, valid) => {
               let currentDate = new Date(),
                   uuid = bean.uuid,
                   dataString = data.toString('utf8');
+              this.setState({ status: "fetching data..."});
+              var count = 60,
+                  timer = setInterval(function() {
+                  count = count-1;
+                  console.log(count);
+                  if(count == 1) clearInterval(timer);
+                }, 1000);
 
               if (valid) {
                   console.log('valid');
-                  this.splitString(dataString)
+                  this.splitString(dataString);
                   if(Object.keys(this.data).length > 5){
+                    console.log("post!!!")
                     this.sendTemp(uuid, currentDate, this.data);
                     this.resetValues();
                   }
@@ -59,13 +66,14 @@ export default class Hello extends React.Component {
 
   resetValues() {
     this.data = {};
+    this.setState({ status: "fetching data..."});
   }
 
   splitString(data) {
     var string = data,
     stringArray = new Array();
 
-    this.state.status = "data received"
+    this.setState({ status: "data received"});
 
     string = string.split(",");
     for(var i =0; i < string.length; i++){
@@ -85,7 +93,7 @@ export default class Hello extends React.Component {
     var array = data,
     jsonArray = {}
     console.log('0')
-    this.state.status = "compiling data..."
+    this.setState({ status: "compiling data..."});
 
     for(var i =0; i < array.length; i++){
       var tempArray, val;
@@ -120,7 +128,8 @@ export default class Hello extends React.Component {
   }
 
   sendTemp(uuid, currentDate, data) {
-      this.state.status = "sending data to database";
+      this.setState({ status: "sending data to database"});
+
       console.log('sending post request to server for: ' + data);
       let config = {
         headers: {
@@ -137,9 +146,11 @@ export default class Hello extends React.Component {
           'data': data,
       }, 'contentType': 'application/json', config)
       .then((response) => {
+          this.setState({ status: "data logged!"});
           console.log(response);
       })
       .catch((error) => {
+          this.setState({ status: "error logging data :("});
           console.log(error);
       });
   }
@@ -150,14 +161,14 @@ export default class Hello extends React.Component {
             <h1>Smarty Pants</h1>
             <h3>Collect fertility data in your sleep!</h3>
             <h4 data-connected = { this.state.connected } >{ this.state.connected ?  'You are connected' : 'Disconnected...' }</h4>
-
+            <h4>{ this.state.connected ? this.state.status : "" }</h4>
+            <h5>{ this.state.counter }</h5>
             <button onClick={this.onclick_dicoverBean}>
                 Start streaming!
             </button>
             <button onClick={this.onclick_disconnectBean}>
                 Stop streaing
             </button>
-            <h5>{this.state.status}</h5>
             <div><a href="https://www.tinyurl.com/smartypantsbbt">Log Oral Temp Data</a></div>
           </div>
 

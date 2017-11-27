@@ -22103,7 +22103,7 @@ var Hello = function (_React$Component) {
 
     _this.onclick_dicoverBean = _this.onclick_dicoverBean.bind(_this);
     _this.onclick_disconnectBean = _this.onclick_disconnectBean.bind(_this);
-    _this.state = { connected: false, status: "loading temp...", counter: "" };
+    _this.state = { connected: false, status: "", bodyTemp: "loading...", beanTemp: "" };
     _this.data = {};
     _this.dataCollected;
     _this.connectedBean = "";
@@ -22115,7 +22115,7 @@ var Hello = function (_React$Component) {
     value: function onclick_disconnectBean() {
       console.log("disconnecting...");
       setTimeout(this.connectedBean.disconnect.bind(this.connectedBean, function () {}), 2000);
-      this.setState({ connected: false });
+      this.setState({ connected: false, beanTemp: "", bodyTemp: "" });
     }
   }, {
     key: 'onclick_dicoverBean',
@@ -22136,19 +22136,19 @@ var Hello = function (_React$Component) {
               uuid = bean.uuid,
               dataString = data.toString('utf8');
           _this2.setState({ status: "fetching data..." });
-          var count = 60,
-              timer = setInterval(function () {
-            count = count - 1;
-            console.log(count);
-            if (count == 1) clearInterval(timer);
-          }, 1000);
+          // var count = 60,
+          //     timer = setInterval(function() {
+          //     count = count-1;
+          //     console.log(count);
+          //     if(count == 1) clearInterval(timer);
+          //   }, 1000);
 
           if (valid) {
             console.log('valid');
             _this2.splitString(dataString);
             if (Object.keys(_this2.data).length > 5) {
               console.log("post!!!");
-              _this2.sendTemp(uuid, currentDate, _this2.data);
+              //this.sendTemp(uuid, currentDate, this.data);
               _this2.resetValues();
             }
           }
@@ -22178,11 +22178,10 @@ var Hello = function (_React$Component) {
       console.log(stringArray);
 
       if (stringArray.length == 1) {
-        this.data["b"] = parseInt(stringArray[0], 10);
+        delete stringArray[0];
       } else {
         this.createObj(stringArray);
       }
-      console.log(this.data["b"]);
     }
   }, {
     key: 'createObj',
@@ -22199,7 +22198,7 @@ var Hello = function (_React$Component) {
         if (parseInt(tempArray[1], 10)) {
           console.log('2');
           val = parseInt(tempArray[1], 10);
-          this.data[tempArray[0]] = val;
+
           // if tempArray["b"] has one value, this needs to be concatinated with this.data["b"]
           // check if key is "b"
           // if(tempArray[0].hasOwnProperty("b")) {
@@ -22207,33 +22206,38 @@ var Hello = function (_React$Component) {
           //     this.data[tempArray[0]] = tempArray[1] + this.data["b"]
           //   }
           // }
+          if (tempArray[0] == "bdy") {
+            this.data["bodyTemp"] = val;
+            this.setState({ bodyTemp: val });
+          } else if (tempArray[0] == "bn") {
+            this.data["beanTemp"] = val;
+            this.setState({ beanTemp: val });
+          } else {
+            this.data[tempArray[0]] = val;
+          }
         } else if (tempArray[1] == "") {
           console.log("battery data found");
           delete tempArray[0];
         } else {
           console.log('4');
-          console.log(this.data["b"]);
           console.log(tempArray[0]);
           val = tempArray[1].trim();
-          this.data[tempArray[0]] = val;
+          this.data["name"] = val;
         }
+
+        // "name": "heather",
+        // "bodyTemp": "-196.00",
+        // "beanTemp": 23,
+        // "x": -44,
+        // "y": -226,
+        // "z": 128,
+        // "time": "Sun, 26 Nov 2017 13:27:56 GMT"
 
         console.log(tempArray[0]);
       }
       console.log("********");
       console.log(this.data);
     }
-
-    // timer() {
-    //   var count = 60,
-    //       timer = setInterval(function() {
-    //       count = count-1;
-    //       this.setState({ counter: count });
-    //       console.log(count);
-    //       if(count == 1) clearInterval(timer);
-    //     }, 1000);
-    // } 
-
   }, {
     key: 'sendTemp',
     value: function sendTemp(uuid, currentDate, data) {
@@ -22291,7 +22295,14 @@ var Hello = function (_React$Component) {
         _react2.default.createElement(
           'h5',
           null,
-          this.state.counter
+          this.state.connected ? 'Body temp: ' : '',
+          this.state.bodyTemp
+        ),
+        _react2.default.createElement(
+          'h5',
+          null,
+          this.state.connected ? 'Ambient temp: ' : '',
+          this.state.beanTemp
         ),
         _react2.default.createElement(
           'button',

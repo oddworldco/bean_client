@@ -14,7 +14,7 @@ export default class Hello extends React.Component {
       // This binding is necessary to make `this` work in the callback
       this.onclick_dicoverBean = this.onclick_dicoverBean.bind(this);
       this.onclick_disconnectBean = this.onclick_disconnectBean.bind(this);
-      this.state = { connected: false, status: "loading temp...", counter: ""};
+      this.state = { connected: false, status: "", bodyTemp: "loading...", beanTemp: ""};
       this.data = {};
       this.dataCollected;
       this.connectedBean = "";
@@ -24,7 +24,7 @@ export default class Hello extends React.Component {
   onclick_disconnectBean() {
     console.log("disconnecting...")
     setTimeout(this.connectedBean.disconnect.bind(this.connectedBean, function(){}), 2000);
-    this.setState({ connected: false });
+    this.setState({ connected: false, beanTemp: "", bodyTemp: "" });
   }
 
   onclick_dicoverBean() {
@@ -41,12 +41,12 @@ export default class Hello extends React.Component {
                   uuid = bean.uuid,
                   dataString = data.toString('utf8');
               this.setState({ status: "fetching data..."});
-              var count = 60,
-                  timer = setInterval(function() {
-                  count = count-1;
-                  console.log(count);
-                  if(count == 1) clearInterval(timer);
-                }, 1000);
+              // var count = 60,
+              //     timer = setInterval(function() {
+              //     count = count-1;
+              //     console.log(count);
+              //     if(count == 1) clearInterval(timer);
+              //   }, 1000);
 
               if (valid) {
                   console.log('valid');
@@ -82,11 +82,10 @@ export default class Hello extends React.Component {
     console.log(stringArray);
 
     if(stringArray.length == 1){
-      this.data["b"] = parseInt(stringArray[0],10);
+      delete stringArray[0]
     } else {
       this.createObj(stringArray);
     }
-    console.log(this.data["b"])
   }  
 
   createObj(data) {
@@ -102,7 +101,7 @@ export default class Hello extends React.Component {
       if(parseInt(tempArray[1],10)){
         console.log('2')
         val = parseInt(tempArray[1],10);
-        this.data[tempArray[0]] = val
+        
         // if tempArray["b"] has one value, this needs to be concatinated with this.data["b"]
         // check if key is "b"
         // if(tempArray[0].hasOwnProperty("b")) {
@@ -110,16 +109,32 @@ export default class Hello extends React.Component {
         //     this.data[tempArray[0]] = tempArray[1] + this.data["b"]
         //   }
         // }
+        if (tempArray[0] == "bdy") {
+          this.data["bodyTemp"] = val
+          this.setState({ bodyTemp: val});
+        } else if (tempArray[0] == "bn") {
+          this.data["beanTemp"] = val
+          this.setState({ beanTemp: val});
+        } else {
+          this.data[tempArray[0]] = val
+        }
       } else if (tempArray[1] == ""){
         console.log("battery data found");
         delete tempArray[0];
       } else {
         console.log('4')
-        console.log(this.data["b"]);
         console.log(tempArray[0]);
         val = tempArray[1].trim();
-        this.data[tempArray[0]] = val;
+        this.data["name"] = val;
       }
+
+      // "name": "heather",
+      // "bodyTemp": "-196.00",
+      // "beanTemp": 23,
+      // "x": -44,
+      // "y": -226,
+      // "z": 128,
+      // "time": "Sun, 26 Nov 2017 13:27:56 GMT"
       
       console.log(tempArray[0]);
     }
@@ -162,7 +177,8 @@ export default class Hello extends React.Component {
             <h3>Collect fertility data in your sleep!</h3>
             <h4 data-connected = { this.state.connected } >{ this.state.connected ?  'You are connected' : 'Disconnected...' }</h4>
             <h4>{ this.state.connected ? this.state.status : "" }</h4>
-            <h5>{ this.state.counter }</h5>
+            <h5>{ this.state.connected ?  'Body temp: ' : '' }{ this.state.bodyTemp }</h5>
+            <h5>{ this.state.connected ?  'Ambient temp: ' : '' }{ this.state.beanTemp }</h5>
             <button onClick={this.onclick_dicoverBean}>
                 Start streaming!
             </button>

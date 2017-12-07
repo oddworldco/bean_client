@@ -22103,9 +22103,9 @@ var Hello = function (_React$Component) {
 
     _this.onclick_dicoverBean = _this.onclick_dicoverBean.bind(_this);
     _this.onclick_disconnectBean = _this.onclick_disconnectBean.bind(_this);
-    _this.state = { connected: false };
-    _this.data = { "b": "" };
-    //this.batt = "";
+    _this.state = { connected: false, status: "", bodyTemp: "loading...", beanTemp: "" };
+    _this.data = {};
+    _this.dataCollected;
     _this.connectedBean = "";
     return _this;
   }
@@ -22115,7 +22115,7 @@ var Hello = function (_React$Component) {
     value: function onclick_disconnectBean() {
       console.log("disconnecting...");
       setTimeout(this.connectedBean.disconnect.bind(this.connectedBean, function () {}), 2000);
-      this.setState({ connected: false });
+      this.setState({ connected: false, beanTemp: "", bodyTemp: "" });
     }
   }, {
     key: 'onclick_dicoverBean',
@@ -22135,12 +22135,20 @@ var Hello = function (_React$Component) {
           var currentDate = new Date(),
               uuid = bean.uuid,
               dataString = data.toString('utf8');
+          _this2.setState({ status: "fetching data..." });
+          // var count = 60,
+          //     timer = setInterval(function() {
+          //     count = count-1;
+          //     console.log(count);
+          //     if(count == 1) clearInterval(timer);
+          //   }, 1000);
 
           if (valid) {
             console.log('valid');
             _this2.splitString(dataString);
-            if (Object.keys(_this2.data).length > 6) {
-              _this2.sendTemp(uuid, currentDate, _this2.data);
+            if (Object.keys(_this2.data).length > 5) {
+              console.log("post!!!");
+              //this.sendTemp(uuid, currentDate, this.data);
               _this2.resetValues();
             }
           }
@@ -22153,6 +22161,7 @@ var Hello = function (_React$Component) {
     key: 'resetValues',
     value: function resetValues() {
       this.data = {};
+      this.setState({ status: "fetching data..." });
     }
   }, {
     key: 'splitString',
@@ -22160,38 +22169,71 @@ var Hello = function (_React$Component) {
       var string = data,
           stringArray = new Array();
 
+      this.setState({ status: "data received" });
+
       string = string.split(",");
       for (var i = 0; i < string.length; i++) {
         stringArray.push(string[i].trim());
       }
       console.log(stringArray);
+
       if (stringArray.length == 1) {
-        this.data["b"] = stringArray[0];
+        delete stringArray[0];
       } else {
         this.createObj(stringArray);
       }
-      console.log(this.data["b"]);
     }
   }, {
     key: 'createObj',
     value: function createObj(data) {
       var array = data,
           jsonArray = {};
+      console.log('0');
+      this.setState({ status: "compiling data..." });
 
       for (var i = 0; i < array.length; i++) {
-        var tempArray;
+        var tempArray, val;
+        console.log('1');
         tempArray = array[i].split(":");
-        //tempObj = '"' + tempArray[0] + '": "' + tempArray[1] + '"';
         if (parseInt(tempArray[1], 10)) {
-          this.data[tempArray[0]] = parseInt(tempArray[1], 10);
+          console.log('2');
+          val = parseInt(tempArray[1], 10);
+
+          // if tempArray["b"] has one value, this needs to be concatinated with this.data["b"]
+          // check if key is "b"
+          // if(tempArray[0].hasOwnProperty("b")) {
+          //   if(tempArray[1].length == 1){
+          //     this.data[tempArray[0]] = tempArray[1] + this.data["b"]
+          //   }
+          // }
+          if (tempArray[0] == "bdy") {
+            this.data["bodyTemp"] = val;
+            this.setState({ bodyTemp: val });
+          } else if (tempArray[0] == "bn") {
+            this.data["beanTemp"] = val;
+            this.setState({ beanTemp: val });
+          } else {
+            this.data[tempArray[0]] = val;
+          }
+        } else if (tempArray[1] == "") {
+          console.log("battery data found");
+          delete tempArray[0];
         } else {
-          this.data[tempArray[0]] = tempArray[1].trim();
+          console.log('4');
+          console.log(tempArray[0]);
+          val = tempArray[1].trim();
+          this.data["name"] = val;
         }
-        if (this.data["b"] == "") {
-          delete this.data["b"];
-        } else {
-          this.data["b"] = this.data["b"];
-        }
+
+        // "name": "heather",
+        // "bodyTemp": "-196.00",
+        // "beanTemp": 23,
+        // "x": -44,
+        // "y": -226,
+        // "z": 128,
+        // "time": "Sun, 26 Nov 2017 13:27:56 GMT"
+
+        console.log(tempArray[0]);
       }
       console.log("********");
       console.log(this.data);
@@ -22199,6 +22241,10 @@ var Hello = function (_React$Component) {
   }, {
     key: 'sendTemp',
     value: function sendTemp(uuid, currentDate, data) {
+      var _this3 = this;
+
+      this.setState({ status: "sending data to database" });
+
       console.log('sending post request to server for: ' + data);
       var config = {
         headers: {
@@ -22208,13 +22254,15 @@ var Hello = function (_React$Component) {
         }
         //http://localhost:3000/collect_data
         //'https://oddworld.herokuapp.com/collect_data'
-      };_axios2.default.post('https://oddworld.herokuapp.com/web_test', { //CHANGE BACK
+      };_axios2.default.post('https://oddworld.herokuapp.com/collect_data', { //CHANGE BACK
         'uuid': uuid,
         'timeStamp': currentDate,
         'data': data
       }, 'contentType', config).then(function (response) {
+        _this3.setState({ status: "data logged!" });
         console.log(response);
       }).catch(function (error) {
+        _this3.setState({ status: "error logging data :(" });
         console.log(error);
       });
     }
@@ -22230,14 +22278,31 @@ var Hello = function (_React$Component) {
           'Smarty Pants'
         ),
         _react2.default.createElement(
-          'h2',
+          'h3',
           null,
           'Collect fertility data in your sleep!'
         ),
         _react2.default.createElement(
           'h4',
-          null,
+          { 'data-connected': this.state.connected },
           this.state.connected ? 'You are connected' : 'Disconnected...'
+        ),
+        _react2.default.createElement(
+          'h4',
+          null,
+          this.state.connected ? this.state.status : ""
+        ),
+        _react2.default.createElement(
+          'h5',
+          null,
+          this.state.connected ? 'Body temp: ' : '',
+          this.state.bodyTemp
+        ),
+        _react2.default.createElement(
+          'h5',
+          null,
+          this.state.connected ? 'Ambient temp: ' : '',
+          this.state.beanTemp
         ),
         _react2.default.createElement(
           'button',
@@ -22248,6 +22313,15 @@ var Hello = function (_React$Component) {
           'button',
           { onClick: this.onclick_disconnectBean },
           'Stop streaing'
+        ),
+        _react2.default.createElement(
+          'div',
+          null,
+          _react2.default.createElement(
+            'a',
+            { href: 'https://www.tinyurl.com/smartypantsbbt' },
+            'Log Oral Temp Data'
+          )
         )
       );
     }

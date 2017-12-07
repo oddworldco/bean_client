@@ -14,9 +14,9 @@ export default class Hello extends React.Component {
       // This binding is necessary to make `this` work in the callback
       this.onclick_dicoverBean = this.onclick_dicoverBean.bind(this);
       this.onclick_disconnectBean = this.onclick_disconnectBean.bind(this);
-      this.state = { connected: false };
+      this.state = { connected: false, status: "", bodyTemp: "loading...", beanTemp: ""};
       this.data = {};
-      //this.batt = "";
+      this.dataCollected;
       this.connectedBean = "";
   }
   
@@ -24,7 +24,7 @@ export default class Hello extends React.Component {
   onclick_disconnectBean() {
     console.log("disconnecting...")
     setTimeout(this.connectedBean.disconnect.bind(this.connectedBean, function(){}), 2000);
-    this.setState({ connected: false });
+    this.setState({ connected: false, beanTemp: "", bodyTemp: "" });
   }
 
   onclick_dicoverBean() {
@@ -40,6 +40,13 @@ export default class Hello extends React.Component {
               let currentDate = new Date(),
                   uuid = bean.uuid,
                   dataString = data.toString('utf8');
+              this.setState({ status: "fetching data..."});
+              // var count = 60,
+              //     timer = setInterval(function() {
+              //     count = count-1;
+              //     console.log(count);
+              //     if(count == 1) clearInterval(timer);
+              //   }, 1000);
 
               if (valid) {
                   console.log('valid');
@@ -54,43 +61,77 @@ export default class Hello extends React.Component {
 
   resetValues() {
     this.data = {};
+    this.setState({ status: "fetching data..."});
   }
 
   splitString(data) {
     var string = data,
     stringArray = new Array();
-    
+
+    this.setState({ status: "data received"});
+
     string = string.split(",");
     for(var i =0; i < string.length; i++){
       stringArray.push(string[i].trim());
     }
     console.log(stringArray);
+
     if(stringArray.length == 1){
-      this.data["b"] = stringArray[0];
+      delete stringArray[0]
     } else {
       this.createObj(stringArray);
     }
-    console.log(this.data["b"])
-  }
+  }  
 
   createObj(data) {
     var array = data,
     jsonArray = {}
-    
+    console.log('0')
+    this.setState({ status: "compiling data..."});
+
     for(var i =0; i < array.length; i++){
-      var tempArray;
+      var tempArray, val;
+      console.log('1')
       tempArray = array[i].split(":");
-      //tempObj = '"' + tempArray[0] + '": "' + tempArray[1] + '"';
       if(parseInt(tempArray[1],10)){
-        this.data[tempArray[0]] = parseInt(tempArray[1],10)
+        console.log('2')
+        val = parseInt(tempArray[1],10);
+        
+        // if tempArray["b"] has one value, this needs to be concatinated with this.data["b"]
+        // check if key is "b"
+        // if(tempArray[0].hasOwnProperty("b")) {
+        //   if(tempArray[1].length == 1){
+        //     this.data[tempArray[0]] = tempArray[1] + this.data["b"]
+        //   }
+        // }
+        if (tempArray[0] == "bdy") {
+          this.data["bodyTemp"] = val
+          this.setState({ bodyTemp: val});
+        } else if (tempArray[0] == "bn") {
+          this.data["beanTemp"] = val
+          this.setState({ beanTemp: val});
+        } else {
+          this.data[tempArray[0]] = val
+        }
+      } else if (tempArray[1] == ""){
+        console.log("battery data found");
+        delete tempArray[0];
       } else {
-        this.data[tempArray[0]] = tempArray[1].trim();
+        console.log('4')
+        console.log(tempArray[0]);
+        val = tempArray[1].trim();
+        this.data["name"] = val;
       }
-      if(this.data["b"]== ""){
-        delete this.data["b"]
-      } else {
-        this.data["b"] = this.data["b"];
-      }
+
+      // "name": "heather",
+      // "bodyTemp": "-196.00",
+      // "beanTemp": 23,
+      // "x": -44,
+      // "y": -226,
+      // "z": 128,
+      // "time": "Sun, 26 Nov 2017 13:27:56 GMT"
+      
+      console.log(tempArray[0]);
     }
     console.log("********")
     console.log(this.data);
@@ -101,6 +142,8 @@ export default class Hello extends React.Component {
   }
 
   sendTemp(uuid, currentDate, data) {
+      this.setState({ status: "sending data to database"});
+
       console.log('sending post request to server for: ' + data);
       let config = {
         headers: {
@@ -111,15 +154,17 @@ export default class Hello extends React.Component {
       }
       //http://localhost:3000/collect_data
       //'https://oddworld.herokuapp.com/collect_data'
-      axios.post('https://oddworld.herokuapp.com/web_test', {  //CHANGE BACK
+      axios.post('https://oddworld.herokuapp.com/collect_data', {  //CHANGE BACK
           'uuid': uuid,
           'timeStamp': currentDate,
           'data': data,
       }, 'contentType': 'application/json', config)
       .then((response) => {
+          this.setState({ status: "data logged!"});
           console.log(response);
       })
       .catch((error) => {
+          this.setState({ status: "error logging data :("});
           console.log(error);
       });
   }
@@ -128,16 +173,20 @@ export default class Hello extends React.Component {
       return (
           <div>
             <h1>Smarty Pants</h1>
-            <h2>Collect fertility data in your sleep!</h2>
-            <h4>{ this.state.connected ?  'You are connected' : 'Disconnected...' }</h4>
-
+            <h3>Collect fertility data in your sleep!</h3>
+            <h4 data-connected = { this.state.connected } >{ this.state.connected ?  'You are connected' : 'Disconnected...' }</h4>
+            <h4>{ this.state.connected ? this.state.status : "" }</h4>
+            <h5>{ this.state.connected ?  'Body temp: ' : '' }{ this.state.bodyTemp }</h5>
+            <h5>{ this.state.connected ?  'Ambient temp: ' : '' }{ this.state.beanTemp }</h5>
             <button onClick={this.onclick_dicoverBean}>
                 Start streaming!
             </button>
             <button onClick={this.onclick_disconnectBean}>
                 Stop streaing
             </button>
+            <div><a href="https://www.tinyurl.com/smartypantsbbt">Log Oral Temp Data</a></div>
           </div>
+
       );
   }
 }

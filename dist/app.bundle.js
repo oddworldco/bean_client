@@ -22146,11 +22146,6 @@ var Hello = function (_React$Component) {
           if (valid) {
             console.log('valid');
             _this2.splitString(dataString);
-            if (Object.keys(_this2.data).length > 5) {
-              console.log("post!!!");
-              //this.sendTemp(uuid, currentDate, this.data);
-              _this2.resetValues();
-            }
           }
         });
 
@@ -22237,6 +22232,10 @@ var Hello = function (_React$Component) {
       }
       console.log("********");
       console.log(this.data);
+      if (Object.keys(this.data).length > 5) {
+        this.sendTemp(uuid, currentDate, this.data);
+        this.resetValues();
+      }
     }
   }, {
     key: 'sendTemp',

@@ -15,7 +15,7 @@ export default class Hello extends React.Component {
       this.onclick_dicoverBean = this.onclick_dicoverBean.bind(this);
       this.onclick_disconnectBean = this.onclick_disconnectBean.bind(this);
       this.state = { connected: false };
-      this.data = {"b": ""};
+      this.data = {};
       //this.batt = "";
       this.connectedBean = "";
   }
@@ -44,10 +44,6 @@ export default class Hello extends React.Component {
               if (valid) {
                   console.log('valid');
                   this.splitString(dataString)
-                  if(Object.keys(this.data).length > 6){
-                    this.sendTemp(uuid, currentDate, this.data);
-                    this.resetValues();
-                  }
               }
           });
 
@@ -98,6 +94,10 @@ export default class Hello extends React.Component {
     }
     console.log("********")
     console.log(this.data);
+    if(Object.keys(this.data).length > 5){
+      this.sendTemp(uuid, currentDate, this.data);
+      this.resetValues();
+    }
   }
 
   sendTemp(uuid, currentDate, data) {

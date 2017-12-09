@@ -17,6 +17,8 @@ export default class Hello extends React.Component {
       this.state = { connected: false, status: "", bodyTemp: "loading...", beanTemp: ""};
       this.data = {};
       this.dataCollected;
+      this.uuid;
+      this.currentDate;
       this.connectedBean = "";
   }
   
@@ -41,15 +43,11 @@ export default class Hello extends React.Component {
                   uuid = bean.uuid,
                   dataString = data.toString('utf8');
               this.setState({ status: "fetching data..."});
-              // var count = 60,
-              //     timer = setInterval(function() {
-              //     count = count-1;
-              //     console.log(count);
-              //     if(count == 1) clearInterval(timer);
-              //   }, 1000);
-
+              
               if (valid) {
                   console.log('valid');
+                  this.uuid = uuid;
+                  this.currentDate = currentDate;
                   this.splitString(dataString)
               }
           });
@@ -95,15 +93,7 @@ export default class Hello extends React.Component {
       tempArray = array[i].split(":");
       if(parseInt(tempArray[1],10)){
         console.log('2')
-        val = parseInt(tempArray[1],10);
-        
-        // if tempArray["b"] has one value, this needs to be concatinated with this.data["b"]
-        // check if key is "b"
-        // if(tempArray[0].hasOwnProperty("b")) {
-        //   if(tempArray[1].length == 1){
-        //     this.data[tempArray[0]] = tempArray[1] + this.data["b"]
-        //   }
-        // }
+        val = Number(parseFloat(tempArray[1],10).toFixed(2));
         if (tempArray[0] == "bdy") {
           this.data["bodyTemp"] = val
           this.setState({ bodyTemp: val});
@@ -122,29 +112,20 @@ export default class Hello extends React.Component {
         val = tempArray[1].trim();
         this.data["name"] = val;
       }
-
-      // "name": "heather",
-      // "bodyTemp": "-196.00",
-      // "beanTemp": 23,
-      // "x": -44,
-      // "y": -226,
-      // "z": 128,
-      // "time": "Sun, 26 Nov 2017 13:27:56 GMT"
-      
       console.log(tempArray[0]);
     }
     console.log("********")
-    console.log(this.data);
     if(Object.keys(this.data).length > 5){
-      this.sendTemp(uuid, currentDate, this.data);
+      console.log(this.data);
+      this.sendTemp(this.data);
       this.resetValues();
     }
   }
 
-  sendTemp(uuid, currentDate, data) {
+  sendTemp(data) {
       this.setState({ status: "sending data to database"});
 
-      console.log('sending post request to server for: ' + data);
+      console.log('sending post request to server for: ' + data.name);
       let config = {
         headers: {
           'Content-Type': 'application/json',
@@ -152,12 +133,10 @@ export default class Hello extends React.Component {
           'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept'
         }
       }
-      //http://localhost:3000/collect_data
+      //http://localhost:8080/web_test
       //'https://oddworld.herokuapp.com/collect_data'
       axios.post('https://oddworld.herokuapp.com/collect_data', {  //CHANGE BACK
-          'uuid': uuid,
-          'timeStamp': currentDate,
-          'data': data,
+          'data': data
       }, 'contentType': 'application/json', config)
       .then((response) => {
           this.setState({ status: "data logged!"});

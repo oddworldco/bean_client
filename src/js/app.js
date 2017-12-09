@@ -72,7 +72,6 @@ export default class Hello extends React.Component {
     for(var i =0; i < string.length; i++){
       stringArray.push(string[i].trim());
     }
-    console.log(stringArray);
 
     if(stringArray.length == 1){
       delete stringArray[0]
@@ -103,10 +102,7 @@ export default class Hello extends React.Component {
         } else {
           this.data[tempArray[0]] = val
         }
-      } else if (tempArray[1] == ""){
-        console.log("battery data found");
-        delete tempArray[0];
-      } else {
+      } else if (tempArray[0]=="n"){
         console.log('4')
         console.log(tempArray[0]);
         val = tempArray[1].trim();
@@ -114,7 +110,9 @@ export default class Hello extends React.Component {
       }
       console.log(tempArray[0]);
     }
-    console.log("********")
+    console.log("********");
+
+
     if(Object.keys(this.data).length > 5){
       console.log(this.data);
       this.sendTemp(this.data);
@@ -161,7 +159,7 @@ export default class Hello extends React.Component {
                 Start streaming!
             </button>
             <button onClick={this.onclick_disconnectBean}>
-                Stop streaing
+                Stop streaming
             </button>
             <div><a href="https://www.tinyurl.com/smartypantsbbt">Log Oral Temp Data</a></div>
           </div>

@@ -22168,7 +22168,6 @@ var Hello = function (_React$Component) {
       for (var i = 0; i < string.length; i++) {
         stringArray.push(string[i].trim());
       }
-      console.log(stringArray);
 
       if (stringArray.length == 1) {
         delete stringArray[0];
@@ -22200,10 +22199,7 @@ var Hello = function (_React$Component) {
           } else {
             this.data[tempArray[0]] = val;
           }
-        } else if (tempArray[1] == "") {
-          console.log("battery data found");
-          delete tempArray[0];
-        } else {
+        } else if (tempArray[0] == "n") {
           console.log('4');
           console.log(tempArray[0]);
           val = tempArray[1].trim();
@@ -22212,9 +22208,10 @@ var Hello = function (_React$Component) {
         console.log(tempArray[0]);
       }
       console.log("********");
+
       if (Object.keys(this.data).length > 5) {
         console.log(this.data);
-        this.sendTemp(this.data);
+        //this.sendTemp(this.data);
         this.resetValues();
       }
     }
@@ -22290,7 +22287,7 @@ var Hello = function (_React$Component) {
         _react2.default.createElement(
           'button',
           { onClick: this.onclick_disconnectBean },
-          'Stop streaing'
+          'Stop streaming'
         ),
         _react2.default.createElement(
           'div',
